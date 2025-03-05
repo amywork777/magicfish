@@ -1,15 +1,31 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, Suspense } from "react"
+import dynamic from 'next/dynamic'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Upload, Wand2 } from "lucide-react"
-import { ModelViewer } from "@/components/model-viewer"
 import { useToast } from "@/components/ui/use-toast"
 import { useDropzone } from "react-dropzone"
 import { STLConverter } from "@/components/stl-converter"
+
+// Dynamically import the ModelViewer component with SSR disabled
+const ModelViewer = dynamic(
+  () => import('@/components/model-viewer').then((mod) => mod.ModelViewer),
+  { 
+    ssr: false,
+    loading: () => (
+      <div className="w-full h-[450px] bg-gray-100 rounded-lg overflow-hidden border flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-10 h-10 border-t-2 border-primary border-solid rounded-full animate-spin mx-auto mb-4"></div>
+          <p>Loading 3D Viewer...</p>
+        </div>
+      </div>
+    )
+  }
+)
 
 type ModelGenerationStatus = "idle" | "uploading" | "generating" | "completed" | "error"
 type InputType = "text" | "image"
